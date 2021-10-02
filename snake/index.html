@@ -1,0 +1,164 @@
+<html>
+<head>
+    <title>Snake game</title>
+
+    <style>
+        .cell {
+            width: 15px;
+            height: 15px;
+            
+        }
+
+        .snake {
+            background: green;
+        }
+        .empty {
+            background: none;
+        }
+
+        .apple {
+            background: red;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div>
+    <table id="field" style="border: 1px solid black">
+    </table>
+</div>
+
+<script>
+    var size = 20;
+    var cells;
+
+    function createField() {
+        var field = document.getElementById('field');
+        var fieldCells = [];
+        for (var y = 0; y < size; y++) {
+            var row = document.createElement('tr');
+            var rowCells = [];
+            fieldCells.push(rowCells);
+            for (var x = 0; x < size; x++) {
+                var column = document.createElement('td');
+                column.setAttribute('class', 'cell');
+                rowCells.push(column);
+                row.appendChild(column);
+            }
+            field.appendChild(row);
+        }
+        return fieldCells;
+    }
+
+    cells = createField();
+
+    var snake = [];
+    function init() {
+        snake = [
+            {x: size / 2, y: 5},
+            {x: size / 2, y: 4},
+            {x: size / 2, y: 3},
+            {x: size / 2, y: 2},
+            {x: size / 2, y: 1},
+        ];
+
+        run();
+        createApple();
+    }
+
+    init();
+
+    function draw() {
+        for (var y = 0; y < size; y++) {
+            for (var x = 0; x < size; x++) {
+                cells[y][x].setAttribute('class', 'cell empty');
+            }
+        }
+        for (var i = 0; i < snake.length; i++) {
+            cells[snake[i].y][snake[i].x].setAttribute('class', 'cell snake')
+        }
+
+        cells[appleY][appleX].setAttribute('class', 'cell apple');
+    }
+
+    draw();
+
+    var dx = 1;
+    var dy = 0;
+
+    function moveSnake(dx, dy) {
+        var newX = snake[snake.length-1].x + dx;
+        var newY = snake[snake.length-1].y + dy;
+        for (var i = 0; i < snake.length; i++) {
+            if (snake[i].x == newX && snake[i].y == newY) {
+                return false;
+            }
+        }
+
+        if (newX >= size) { newX = 0; }
+        if (newX < 0) { newX = size - 1; }
+        if (newY >= size) { newY = 0; }
+        if (newY < 0) { newY = size - 1; }
+        snake.push({x: newX, y: newY});
+
+        
+        if (newX == appleX && newY == appleY) {
+            createApple();
+        } else {
+            snake.splice(0, 1);
+        }
+
+        return true;
+
+    }
+
+
+    document.addEventListener('keydown', function(e) {
+        var newDx = 0;
+        var newDy = 0;
+        if (e.keyCode == 40) { //down
+            newDy = 1;
+        } else if (e.keyCode == 38) { //up
+            newDy = -1;
+        } else if (e.keyCode == 37) { //left
+            newDx = -1;
+        } else if (e.keyCode == 39) { //right
+            newDx = 1;
+        }
+        
+        if (dx != -newDx && dy != -newDy) {
+            dx = newDx;
+            dy = newDy;
+        }
+        
+    });
+
+    function run() {
+        var interval = setInterval(function() {
+            
+            if (!moveSnake(dx, dy)) {
+                clearInterval(interval);
+                alert('Game over!');
+                init();
+                return;
+            }
+
+            draw();
+        }, 200);
+    }
+
+    var appleX, appleY;
+    function createApple() {
+        appleX = Math.floor(Math.random() * size);
+        appleY = Math.floor(Math.random() * size);
+    }
+
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,1 @@
+Examples for 'Code in 5 minutes' project
