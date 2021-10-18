@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <title>Web chat</title>
+    <script src="node_modules/socket.io/client-dist/socket.io.js"></script>
+  </head>
+  <body>
+    <p>Web chat</p>
+    <form id="form">
+      <input id="input" type="text" autocomplete="off">
+      <input type="submit" value="Send">
+    </form>
+    <p id="messages">
+    </p>
+    <script>
+      var socket = io();
+      var userName = 'User' + Math.round(Math.random() * 10000);
+      socket.on('connect', () => {
+        socket.emit('joined', userName);
+      });
+      var form = document.getElementById('form');
+      var input = document.getElementById('input');
+      var messages = document.getElementById('messages');
+
+      form.onsubmit = function(e) {
+        e.preventDefault();
+        socket.emit('message', input.value);
+        input.value = '';
+        input.focus();
+      }
+
+      socket.on('message', function(msg) {
+        messages.innerHTML = msg + '<br/>' + messages.innerHTML;
+      });
+    </script>
+  </body>
+</html>
