@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <title>Burining fire</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script>
+      var width = 200, height = 120, pixelSize = 4;
+      var canvas = document.getElementById('canvas');
+      var ctx = canvas.getContext('2d');
+      canvas.width = width * pixelSize;
+      canvas.height = height * pixelSize;
+      var fire = new Array(width * height).fill(0);
+
+      function get(x, y) {
+        return fire[y * width + x] || 0;
+      }
+
+      function set(x, y, v) {
+        fire[y * width + x] = v;
+      }
+
+      function pixel(x, y, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+      }
+
+      var gradient = chroma.scale(['#000000', '#000000', '#ffff00', '#ff8700', '#ff0000']).
+        domain([0, 10, 15, 30, 100]);
+
+      function color(color) {
+//        return 'rgb(' + color + ',0,0)';
+        return gradient(color * 100.0 / 255).toString();
+      }
+
+      function drawText() {
+        ctx.textAlign = 'center'
+        ctx.font = (16 * pixelSize) + 'px Arial'
+        ctx.fillStyle = 'white'
+        ctx.fillText('5minsofcode.com', width * pixelSize / 2, height * pixelSize / 2.5);
+      }
+      function frame() {
+        for (var x = 0; x < width; x++) {
+          set(x, height - 1, Math.floor(Math.random() * 255));
+        }
+        for (var y = 0; y < height - 1; y++) {
+            for (var x = 0; x < width; x++) {
+              var c = (get(x - 1, y + 1) + get(x, y + 1) + get(x + 1, y + 1) + get(x, y + 2)) / 4.1;
+              set(x, y, c);
+              pixel(x, y, color(c));
+            }
+        }
+        drawText();
+        window.requestAnimationFrame(frame);
+      }
+      window.requestAnimationFrame(frame);
+    </script>
+  </body>
+</html>
