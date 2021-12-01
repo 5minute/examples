@@ -1,0 +1,122 @@
+<html>
+  <head>
+    <title>Memo</title>
+    <style>
+      #field td {
+        border: 1 px solid black;
+        border-radius: 3px;
+        background-color: #bbbbbb;
+        width: 75px;
+        height: 100px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <table id="field"></table>
+  </body>
+  <script>
+    var width = 3, height = 2, pairs = width * height / 2, cells = [], selected = null;
+
+    function createField() {
+      var table = document.getElementById('field');
+      for (var y = 0; y < height; y++) {
+        var tr = document.createElement('tr');
+        var trCells = [];
+        for (var x = 0; x < width; x++) {
+          var td = document.createElement('td');
+          td.onclick = select(x, y);
+          trCells.push({element: td});
+          tr.appendChild(td);
+        }
+        cells.push(trCells);
+        table.appendChild(tr);
+      }
+    }
+
+    function select(x, y) {
+      return function() {
+        if (cells[y][x].open) { return; }
+        if (!selected) {
+          selected = {x: x, y: y};
+          openCard(x, y);
+        } else if (selected.x != x || selected.y != y) {
+          var sx = selected.x, sy = selected.y
+          openCard(x, y);
+          if (cells[y][x].value != cells[sy][sx].value) {
+            setTimeout(function() {
+              closeCard(x, y);
+              closeCard(sx, sy);
+              selected = null;
+            }, 1000);
+          } else {
+            selected = null;
+            checkGameOver();
+          }
+        }
+      }
+    }
+
+    function checkGameOver() {
+      for (var y = 0; y < height; y++) {
+        for (var x = 0; x < width; x++) {
+          if (!cells[y][x].open) { return; }
+        }
+      }
+      setTimeout(function() {
+        alert('Game over!');
+        init();
+      }, 100);
+    }
+    function openCard(x, y) {
+      var c = cells[y][x];
+      var e = c.element;
+      e.setAttribute('style', 'background-color: hsl(' + (320 * c.value / pairs) + ', 100%, 50%)');
+      e.innerText = c.value;
+      c.open = true;
+    }
+
+    function closeCard(x, y) {
+      var c = cells[y][x];
+      var e = c.element;
+      e.removeAttribute('style');
+      e.innerText = '';
+      c.open = false;
+    }
+
+    function shuffle() {
+      var cards = [];
+      for (var i = 1; i <= pairs; i++) {
+        cards.push(i); cards.push(i);
+      }
+      for (var y = 0; y < height; y++) {
+        for (var x = 0; x < width; x++) {
+          var p = Math.floor(Math.random() * cards.length);
+          var v = cards[p];
+          cards.splice(p, 1);
+          cells[y][x].value = v;
+          openCard(x, y);
+        }
+      }
+    }
+
+    function closeAllCards() {
+      for (var y = 0; y < height; y++) {
+        for (var x = 0; x < width; x++) {
+          closeCard(x, y);
+        }
+      }
+    }
+
+    function init() {
+      shuffle();
+
+      setTimeout(function() {
+        closeAllCards();
+      }, 2000);
+    }
+
+    createField();
+    init();
+  </script>
+</html>
